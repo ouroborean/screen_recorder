@@ -19,8 +19,9 @@ resources_path = os.path.join(
 
 target_fps = contextvars.ContextVar('target_fps', default=15)
 
+
 class Camera:
-    recording:bool
+    recording: bool
     upper_bounds: Tuple[int]
     size: Tuple[int]
     selecting_bounds: bool
@@ -30,7 +31,7 @@ class Camera:
         self.recording = False
         self.selecting_bounds = False
         self.size = (0, 0)
-        self.upper_bounds = (0,0)
+        self.upper_bounds = (0, 0)
 
     def define_upper_bounds(self, bounds: Tuple[int]):
         self.upper_bounds = bounds
@@ -49,28 +50,25 @@ class Camera:
     def toggle(self):
         self.recording = not self.recording
 
+
 class KeyLogger:
-
-
-
     def __init__(self, camera: Camera):
         self.log = ""
         self.camera = camera
+
     def release_callback(self, event):
         name = event.name
         if len(name) >= 1:
             if name == "=" and not self.camera.recording and not self.camera.selecting_bounds:
                 self.camera.toggle()
             elif name == "r" and not self.camera.selecting_bounds and not self.camera.recording:
-                self.camera.upper_bounds = (0,0)
-                self.camera.size = (0,0)
+                self.camera.upper_bounds = (0, 0)
+                self.camera.size = (0, 0)
                 self.camera.selecting_bounds = True
                 self.camera.define_upper_bounds(pyautogui.position())
             elif name == "r" and self.camera.selecting_bounds and not self.camera.recording:
                 self.camera.selecting_bounds = False
                 self.camera.define_lower_bounds(pyautogui.position())
-            
-        
 
     def start(self):
         keyboard.on_release(callback=self.release_callback)
@@ -95,9 +93,6 @@ class KillLogger:
                 self.camera.upper_bounds = (0, 0)
             elif name == "alt+u":
                 exit()
-                
-                
-                
 
     def start(self):
         keyboard.on_release(callback=self.callback)
@@ -160,6 +155,7 @@ async def run_ffmpeg(camera: Camera):
     vstdout, vstderr = await ffmpeg_video_process.communicate()
     print(vstderr)
 
+
 def main():
     camera = Camera()
     key_logger = KeyLogger(camera)
@@ -168,4 +164,3 @@ def main():
         if camera.recording and not camera.recording_running:
             camera.recording_running = True
             asyncio.run(run_ffmpeg(camera))
-
